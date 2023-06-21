@@ -5,7 +5,7 @@
 #include <easyx.h>
 #include <stack>
 #include <windows.h>
-#define maxsize 100
+#define maxsize 1000
 using namespace std;
 int maze[maxsize][maxsize];
 static int y;
@@ -183,10 +183,10 @@ int main() {
 	{
 		cout << "该迷宫无解" << endl;
 	}
-	const int width = 40;
+	const int width = 20;
 	{
 		auto ret = _getwch();
-		initgraph(1920, 1080);
+		initgraph(1920, 1920);
 		setlinecolor(YELLOW);
 		setfillcolor(RED);
 		for (int i = 0; i < m; i++)
@@ -199,14 +199,14 @@ int main() {
 			}
 		}
 
-		for (int i = 0; i < m; i++)
+		for (int j = 0; j < n; j++)
 		{
-			for (int j = 0; j < n; j++) {
+			for (int i = 0; i < m; i++) {
 				if (maze[i + 1][j + 1] == -1)
 				{
 					setfillcolor(GREEN);
-					fillrectangle(j * width, i * width, j * width + width - 1, i * width + width - 1); //绘制墙矩形方块
-					Sleep(500);
+					fillrectangle(j * width, i * width, j * width + width - 1, i * width + width - 1); //绘制路径方块
+					Sleep(200);
 				}
 			}
 		}
