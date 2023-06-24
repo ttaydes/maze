@@ -19,21 +19,57 @@ typedef struct {
 	int j; //列-1
 	int di; //下一个方块方位
 }box;
+typedef struct linkstack {
+	box pathnode;
+	struct linkstack* next;
+	int top;
+}ls;
 
+ls* push(ls* stack, box b) {
+	//创建新元素节点
+	ls* n = (ls*)malloc(sizeof(ls));
+	n->pathnode = b;
+	n->next = stack;
+	stack = n; //头指针指向更新
+	return stack;
+}//头插法插入
+
+ls* pop(ls* stack) {
+	if (stack) {
+		ls* n = stack;         //声明一个新指针指向栈顶节点
+		stack = stack->next;
+		free(n);
+	}
+	return stack;
+}
+bool isempty(ls* stack) {
+
+	return stack->next == NULL;
+
+}//是否空
+box top(ls* stack) {
+	return stack->pathnode;
+}
+ls * inits(ls*& s) {
+	s = (ls*)malloc(sizeof(ls));
+	s->next = NULL;
+	return s;
+}
 bool path(int yi, int xi, int yo, int xo) {
-	stack<box>s;
+	ls* p;
+	inits(p);
 	box path[maxsize];
 	box b;//设置当前点
 	bool find;
-	int i, j, di, i1, j1;
+    int i, j, di, i1, j1;
 	b.i = yi;
 	b.j = xi;
 	b.di = -1; //b代表当前的块
-	s.push(b);
+	p = push(p,b);
 	maze[b.i][b.j] = -1; //走过的路标记-1
-	while (!s.empty())
+	while (!isempty(p))
 	{
-		b = s.top();
+		b = top(p);
 		i = b.i;
 		j = b.j;
 		di = b.di;
@@ -41,20 +77,20 @@ bool path(int yi, int xi, int yo, int xo) {
 		{
 			cout << "路径如下:" << endl;
 			int k = 0;
-			while (!s.empty())
+			while (!isempty(p))
 			{
 				box b1;
-				b1 = s.top();
-				s.pop();
+				b1 = top(p);
+				p=pop(p);
 				path[k++] = b1;//将栈顶放入path数组
 			}
 			while (k >= 1)
 			{
 				k--; //上面k++ 多加了一个
 				cout << "(" << path[k].i << "," << path[k].j << "," << path[k].di << ")";
-				if ((k + 2) % 5 == 0) {
+				if (k % 5 == 0) {
 					cout << endl;
-				}
+				}//5个一组输出
 
 			}
 			cout << endl;
@@ -74,16 +110,17 @@ bool path(int yi, int xi, int yo, int xo) {
 			if (maze[i1][j1] == 0) find = true;
 		}
 		if (find) {
-			s.top().di = di;
+
+			p->pathnode.di= di;
 			b.i = i1;
 			b.j = j1;
 			b.di = -1;
-			s.push(b);
+			p = push(p,b);
 			maze[b.i][b.j] = -1; //找到进栈且标记
 		}
 		else
 		{
-			s.pop();
+			p = pop(p);
 			maze[b.i][b.j] = 0;
 		}
 
@@ -144,7 +181,7 @@ void CreateMaze(int m, int n) {
 			}
 		}
 
-		maze_p.erase(maze_p.begin());
+		maze_p.erase(maze_p.begin()+num); //把队列当前墙删除
 	}
 
 	maze[2][1] = 0;
@@ -166,7 +203,7 @@ void CreateMaze(int m, int n) {
 		}
 		cout << endl;
 	}//显示
-	cout << "--------------------------------" << endl;
+	cout << "--------------------------------------------------------" << endl;
 
 
 }
@@ -195,10 +232,11 @@ int main() {
 				if (maze[i + 1][j + 1] == 1)
 				{
 					fillrectangle(j * width, i * width, j * width + width - 1, i * width + width - 1); //绘制墙矩形方块
+					Sleep(5);
 				}
 			}
 		}
-
+    
 		for (int j = 0; j < n; j++)
 		{
 			for (int i = 0; i < m; i++) {
@@ -206,7 +244,7 @@ int main() {
 				{
 					setfillcolor(GREEN);
 					fillrectangle(j * width, i * width, j * width + width - 1, i * width + width - 1); //绘制路径方块
-					Sleep(200);
+					Sleep(0);
 				}
 			}
 		}
